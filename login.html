@@ -1,0 +1,53 @@
+<html>
+
+<head>
+	<script src="https://sdk.accountkit.com/en_US/sdk.js"></script>
+</head>
+
+<body>
+
+	<button onclick="loginWithSMS();">SMS</button>
+	<!-- <button onclick="loginWithEmail();">Email</button> -->
+
+	<form id="my_form" name="my_form" action="/sendcode" method="POST" style="display: none;">
+		<input type="text" id="code" name="code">
+		<input type="text" id="csrf_nonce" name="csrf_nonce">
+		<input type="submit" value="Submit">
+	</form>
+
+	<script>
+		// initialize Account Kit with CSRF protection
+		AccountKit_OnInteractive = function () {
+			AccountKit.init(
+				{
+					appId: 1347808178681125,
+					state: "{{csrf}}",
+					version: "v1.0",
+					redirect: "/redirect"
+				}
+			);
+		};
+
+		// login callback
+		function loginCallback(response) {
+			if (response.status === "PARTIALLY_AUTHENTICATED") {
+				//do post request to sendcode here				
+				document.getElementById("code").value = response.code;
+				document.getElementById("csrf_nonce").value = response.state;
+				document.getElementById("my_form").submit();
+			}
+			else if (response.status === "NOT_AUTHENTICATED") { }
+			else if (response.status === "BAD_PARAMS") { }
+		}
+
+		function loginWithSMS() {
+			AccountKit.login("PHONE", {phoneNumber:7009430836}, loginCallback);
+		}
+
+		// function loginWithEmail() {
+		// 	AccountKit.login("EMAIL", {}, loginCallback);
+		// }
+	</script>
+</body>
+
+</html>
